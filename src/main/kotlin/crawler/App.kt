@@ -12,10 +12,6 @@ class App {
 }
 
 fun main(args: Array<String>) {
-    val urlSource = SocketConnection().getURLSource("https://therecount.github.io/interview-materials/project-a/1.html")
-    val links = UrlExtractor().getLinks(urlSource, "https://therecount.github.io/interview-materials/project-a/")
-
-
     println(App().greeting)
 }
 

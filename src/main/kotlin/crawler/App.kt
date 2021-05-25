@@ -3,15 +3,31 @@
  */
 package crawler
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import picocli.CommandLine
+import java.net.URL
+import java.util.concurrent.Callable
+import kotlin.system.exitProcess
 
-class App {
-    val greeting: String
-        get() {
-            return "Hello world."
+
+@CommandLine.Command(name = "crawler", mixinStandardHelpOptions = true, version = ["Crawler CLI 0.1"],
+        description = ["Prints all the phone numbers from a domain to STDOUT."])
+class App : Callable<Int> {
+
+    @CommandLine.Option(names = ["-u", "--url"], description = ["for example, https://www.colectivocoffee.com"])
+    var website = "https://therecount.github.io/interview-materials/project-a/1.html"
+
+    override fun call(): Int {
+        val driver = Driver(URL(website), SocketConnection(), UrlExtractor(), PhoneNumberScraper(PhoneNumberUtil.getInstance()))
+        val scrapedPhoneNumbers = driver.collectPhoneNumbers()
+        println(scrapedPhoneNumbers)
+        return 0
+    }
+
+    companion object {
+        @JvmStatic fun main(args: Array<String>) {
+            exitProcess(CommandLine(App()).execute(*args))
         }
-}
-
-fun main(args: Array<String>) {
-    println(App().greeting)
+    }
 }
 

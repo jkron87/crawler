@@ -7,36 +7,37 @@ import java.net.URL
 
 
 class UrlExtractor {
-    fun getLinks(htmlSourceCode: String, url: URL, containsPaths: Boolean): Set<URL> {
+    fun getLinks(htmlSourceCode: String, url: URL): Set<URL> {
         val doc: Document = Jsoup.parse(htmlSourceCode)
         val set = doc.select("a").map { it.attr("href") }.toSet()
 
         val urls: HashSet<URL> = HashSet()
 
         set.forEach {
-            val url1 = try {
+            val scrapedUrl = try {
                 URL(it)
             } catch (e: Exception) {
                 null
             }
-            if (url1?.host != null && url1.host != url.host) {
-                //noop
+
+            if (scrapedUrl?.host != null && scrapedUrl.host != url.host) {
+                //noop (we don't include other domains)
             } else {
-                urls.add(URL(url.protocol, url.host, it))
-                urls.add(URL(url.protocol, url.host, generateFilename(url) + it))
+                urls.add(URL(url.protocol, url.host, determineAddPrefixSlash(it)))
+                urls.add(URL(url.protocol, url.host, determineAddPrefixSlash(FilenameUtils.getPath(url.path) + it)))
             }
 
         }
-        return urls
 
+        return urls
 
     }
 
-    private fun generateFilename(url: URL): String? {
-        return if (FilenameUtils.getPath(url.path).startsWith("/")) {
-            FilenameUtils.getPath(url.path)
+    private fun determineAddPrefixSlash(path: String): String {
+        return if (path.startsWith("/")) {
+            path
         } else {
-            "/" + FilenameUtils.getPath(url.path)
+            "/$path"
         }
     }
 }

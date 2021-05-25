@@ -12,6 +12,8 @@ plugins {
     id 'application'
 }
 
+apply plugin: 'kotlin-kapt'
+
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
@@ -33,9 +35,26 @@ dependencies {
 
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '8.12.23'
+    kapt 'info.picocli:picocli-codegen:4.6.1'
+    implementation("info.picocli:picocli:4.6.1")
+    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
 }
 
-application {
-    // Define the main class for the application.
-    mainClassName = 'crawler.AppKt'
+kapt {
+    arguments {
+        arg("project", "${project.name}")
+    }
+}
+
+jar {
+
+
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } } {
+        exclude 'META-INF/**'
+    }
+    manifest {
+        attributes("Main-Class": "crawler.App")
+    }
 }

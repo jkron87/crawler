@@ -24,7 +24,11 @@ class UrlExtractor {
                 //noop (we don't include other domains)
             } else {
                 urls.add(URL(url.protocol, url.host, determineAddPrefixSlash(it)))
-                urls.add(URL(url.protocol, url.host, determineAddPrefixSlash(FilenameUtils.getPath(url.path) + it)))
+
+                //handle case where url contains paths
+                if (!url.toString().contains(FilenameUtils.getPath(it)) || FilenameUtils.getPath(it).isEmpty()) {
+                    urls.add(URL(url.protocol, url.host, determineAddPrefixSlash(FilenameUtils.getPath(url.path) + it)))
+                }
             }
 
         }

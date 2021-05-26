@@ -9,11 +9,15 @@ class Driver(private val rootUrl: URL, private val socketConnection: SocketConne
     private val phoneNumbers = ArrayList<String>()
 
     fun collectPhoneNumbers(): List<String> {
-        val urlSource = SocketConnection().getURLSource(rootUrl)
-        val links = urlExtractor.getLinks(urlSource, rootUrl)
+        val urlSource = try {
+            SocketConnection().getURLSource(rootUrl)
+        } catch (e: Exception) {
+            null
+        }
 
-        recursivelyScrapeSublinks(links)
+        val links = urlSource?.let { urlExtractor.getLinks(it, rootUrl) }
 
+        links?.let { recursivelyScrapeSublinks(it) }
         return phoneNumbers
     }
 

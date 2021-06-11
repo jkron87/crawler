@@ -1,7 +1,6 @@
 package crawler
 
-import com.nhaarman.mockitokotlin2.mock
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito

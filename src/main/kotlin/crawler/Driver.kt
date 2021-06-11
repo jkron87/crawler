@@ -5,8 +5,6 @@ import java.net.URL
 
 class Driver(private val rootUrl: URL, private val socketConnection: SocketConnection, private val urlExtractor: UrlExtractor, private val phoneNumberScraper: PhoneNumberScraper) {
 
-    private val crawledURLs = hashSetOf<String>()
-    private val phoneNumbers = ArrayList<String>()
 
     fun collectPhoneNumbers(): List<String> {
         val urlSource = try {
@@ -17,11 +15,10 @@ class Driver(private val rootUrl: URL, private val socketConnection: SocketConne
 
         val links = urlSource?.let { urlExtractor.getLinks(it, rootUrl) }
 
-        links?.let { recursivelyScrapeSublinks(it) }
-        return phoneNumbers
+        return links?.let { recursivelyScrapeSublinks(arrayListOf(), hashSetOf(), it) } ?: listOf()
     }
 
-    private fun recursivelyScrapeSublinks(links: Set<URL>) {
+    private tailrec fun recursivelyScrapeSublinks(phoneNumbers: ArrayList<String>, crawledURLs: HashSet<String>, links: Set<URL>): List<String> {
         links.map { it.toString() }.forEach { url ->
             crawledURLs.add(url)
             val urlSource: String? = try {
@@ -34,9 +31,11 @@ class Driver(private val rootUrl: URL, private val socketConnection: SocketConne
             val sublinks = urlSource?.let { urlExtractor.getLinks(it, URL(url)) }
 
             if (sublinks?.isNotEmpty() == true && !crawledURLs.contains(url)) {
-                recursivelyScrapeSublinks(links)
+                return recursivelyScrapeSublinks(phoneNumbers, crawledURLs, links)
             }
         }
+
+        return phoneNumbers
     }
 
 }
